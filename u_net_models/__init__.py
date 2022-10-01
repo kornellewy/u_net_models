@@ -9,5 +9,14 @@ from .convnext_model import (
 )
 from .resnet_model import GeneratorResNet
 from .unet_model import U_Net2, R2U_Net2, AttU_Net2, R2AttU_Net2, ACGPNDiscriminator
+from .transformer_u_net import TransformerUNet
 
-__all__ = ["swiss", "cheddar"]
+__all__ = [
+    "GeneratorResNet",
+    "U_Net2",
+    "R2U_Net2",
+    "AttU_Net2",
+    "R2AttU_Net2",
+    "ACGPNDiscriminator",
+    "TransformerUNet",
+]
