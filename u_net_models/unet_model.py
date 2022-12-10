@@ -62,7 +62,7 @@ class up_conv2(nn.Module):
         self.up = nn.Sequential(
             nn.PixelShuffle(upscale_factor=self.upscale_factor),
             nn.ConvTranspose2d(
-                ch_in // self.upscale_factor ** 2,
+                ch_in // self.upscale_factor**2,
                 ch_out,
                 kernel_size=3,
                 stride=1,
@@ -947,6 +947,31 @@ class ACGPNDiscriminator(nn.Module):
         img_input = torch.cat((img_A, img_B), 1)
         return self.model(img_input)
 
+
+class ACGPNDiscriminatorSingleImage(nn.Module):
+    def __init__(self, in_channels=21):
+        super().__init__()
+        self.in_channels = in_channels
+
+        def discriminator_block(in_filters, out_filters, normalization=True):
+            """Returns downsampling layers of each discriminator block"""
+            layers = [nn.Conv2d(in_filters, out_filters, 4, stride=2, padding=1)]
+            if normalization:
+                layers.append(nn.InstanceNorm2d(out_filters))
+            layers.append(nn.LeakyReLU(0.2, inplace=True))
+            return layers
+
+        self.model = nn.Sequential(
+            *discriminator_block(in_channels, 64, normalization=False),
+            *discriminator_block(64, 128),
+            *discriminator_block(128, 256),
+            *discriminator_block(256, 512),
+            nn.ZeroPad2d((1, 0, 1, 0)),
+            nn.Conv2d(512, 1, 4, padding=1, bias=False)
+        )
+
+    def forward(self, img_input):
+        return self.model(img_input)
 
 
 if __name__ == "__main__":
